@@ -1,0 +1,48 @@
+export const cameroonCities = [
+  { name: "Yaoundé", region: "Centre" },
+  { name: "Douala", region: "Littoral" },
+  { name: "Garoua", region: "Nord" },
+  { name: "Bamenda", region: "Nord-Ouest" },
+  { name: "Maroua", region: "Extrême-Nord" },
+  { name: "Bafoussam", region: "Ouest" },
+  { name: "Ngaoundéré", region: "Adamaoua" },
+  { name: "Bertoua", region: "Est" },
+  { name: "Ebolowa", region: "Sud" },
+  { name: "Kribi", region: "Sud" },
+  { name: "Limbe", region: "Sud-Ouest" },
+  { name: "Buea", region: "Sud-Ouest" },
+  { name: "Dschang", region: "Ouest" },
+  { name: "Kumba", region: "Sud-Ouest" },
+  { name: "Edéa", region: "Littoral" },
+  { name: "Loum", region: "Littoral" },
+  { name: "Mbalmayo", region: "Centre" },
+  { name: "Sangmélima", region: "Sud" },
+  { name: "Mokolo", region: "Extrême-Nord" },
+  { name: "Kousséri", region: "Extrême-Nord" },
+]
+
+export const neighborhoods = [
+  // Yaoundé
+  "Bastos",
+  "Melen",
+  "Nlongkak",
+  "Emombo",
+  "Ekounou",
+  "Mvog-Mbi",
+  "Tsinga",
+  "Essos",
+  // Douala
+  "Akwa",
+  "Bonanjo",
+  "Deido",
+  "New Bell",
+  "Bonapriso",
+  "Bali",
+  "Makepe",
+  "Logbaba",
+  // Autres
+  "Centre-ville",
+  "Résidentiel",
+  "Commercial",
+  "Industriel",
+]
