@@ -89,7 +89,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-center p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
                       <img
-                        src={companyInfo.logo || "/placeholder.svg"}
+                        src={`${companyInfo.logo}?v=${new Date().getTime()}`}
                         alt="Logo entreprise"
                         className="max-h-24 max-w-full object-contain"
                       />
@@ -130,7 +130,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <div className="relative">
                       <img
-                        src={settings.loginBackgroundImage || "/placeholder.svg"}
+                        src={`${settings.loginBackgroundImage}?v=${new Date().getTime()}`}
                         alt="Arrière-plan de connexion"
                         className="w-full h-32 object-cover rounded-lg"
                       />
