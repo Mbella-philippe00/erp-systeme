@@ -29,11 +29,11 @@ export default function LoginPage() {
     setIsLoading(true)
 
     // Simulation d'authentification
-    if (email === "admin@erp.com" && password === "admin123") {
+    if (email === "mbellacriss@icloud.com" && password === "Blalarphil2025") {
       login({
         id: "1",
         name: "Administrateur",
-        email: "admin@erp.com",
+        email: "mbellacriss@icloud.com",
         role: "admin",
       })
       router.push("/")
