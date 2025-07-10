@@ -14,6 +14,7 @@ import { useData } from "@/contexts/data-context"
 import { CashFlowChart } from "@/components/charts/cash-flow-chart"
 import { BankAccountModal } from "@/components/modals/bank-account-modal"
 import { TransactionModal } from "@/components/modals/transaction-modal"
+import { ReportTemplate } from "@/components/report-template"
 
 export default function TreasuryPage() {
   const { bankAccounts, cashTransactions } = useData()
@@ -118,6 +119,12 @@ export default function TreasuryPage() {
           <h1 className="text-3xl font-bold">Trésorerie</h1>
           <p className="text-muted-foreground">Gestion des flux de trésorerie et des comptes bancaires</p>
         </div>
+        <ReportTemplate onExport={(templateId) => {
+          const message = templateId 
+            ? `Rapport de trésorerie exporté avec le modèle ${templateId}` 
+            : "Rapport de trésorerie exporté avec le modèle par défaut"
+          alert(message)
+        }} moduleTitle="Trésorerie" />
         <div className="flex space-x-2">
           <Button onClick={() => setShowTransactionModal(true)}>
             <Plus className="mr-2 h-4 w-4" />

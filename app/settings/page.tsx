@@ -12,6 +12,7 @@ import { useAppSettings } from "@/contexts/app-settings-context"
 import { LogoModal } from "@/components/modals/logo-modal"
 import { CompanyInfoModal } from "@/components/modals/company-info-modal"
 import { LoginBackgroundModal } from "@/components/modals/login-background-modal"
+import UploadLogo from '@/components/UploadLogo'
 
 export default function SettingsPage() {
   const { companyInfo } = useCompany()
@@ -93,6 +94,11 @@ export default function SettingsPage() {
                         alt="Logo entreprise"
                         className="max-h-24 max-w-full object-contain"
                       />
+                       <UploadLogo
+    onUpload={(url) => {
+      console.log('URL du logo :', url)
+    }}
+  />
                     </div>
                     <Badge variant="outline" className="w-fit">
                       Logo configuré

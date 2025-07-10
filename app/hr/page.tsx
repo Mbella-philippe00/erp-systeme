@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Download, UserPlus, Trash2, Edit } from "lucide-react"
+import { UserPlus, Trash2, Edit } from "lucide-react"
+import { ReportTemplate } from "@/components/report-template"
 import { useData } from "@/contexts/data-context"
 import { EmployeeModal } from "@/components/modals/employee-modal"
 
@@ -86,10 +87,12 @@ export default function HRPage() {
             <UserPlus className="mr-2 h-4 w-4" />
             Nouvel employé
           </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Rapport RH
-          </Button>
+          <ReportTemplate onExport={(templateId) => {
+            const message = templateId 
+              ? `Rapport RH exporté avec le modèle ${templateId}` 
+              : "Rapport RH exporté avec le modèle par défaut"
+            alert(message)
+          }} moduleTitle="Ressources Humaines" />
         </div>
       </div>
 

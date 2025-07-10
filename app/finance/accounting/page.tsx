@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Download, Plus, Search, ArrowUpDown } from "lucide-react"
+import { Plus, Search, ArrowUpDown } from "lucide-react"
+import { ReportTemplate } from "@/components/report-template"
 import { formatCurrency } from "@/utils/currency"
 import { AccountingEntryModal } from "@/components/modals/accounting-entry-modal"
 import { useData } from "@/contexts/data-context"
@@ -89,10 +90,12 @@ export default function AccountingPage() {
             <Plus className="mr-2 h-4 w-4" />
             Nouvelle écriture
           </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Exporter
-          </Button>
+          <ReportTemplate onExport={(templateId) => {
+              const message = templateId 
+                ? `Rapport comptable exporté avec le modèle ${templateId}` 
+                : "Rapport comptable exporté avec le modèle par défaut"
+              alert(message)
+            }} moduleTitle="Comptabilité" />
         </div>
       </div>
 

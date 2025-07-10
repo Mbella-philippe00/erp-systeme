@@ -35,7 +35,7 @@ export function SalesChart({ data }: SalesChartProps) {
       </div>
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>0</span>
-        <span>{(maxRevenue / 1000000).toFixed(0)}M FCFA</span>
+        <span>{(maxRevenue / 0).toFixed(0)}M FCFA</span>
       </div>
     </div>
   )

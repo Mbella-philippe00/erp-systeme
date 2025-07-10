@@ -1,0 +1,190 @@
+{
+  "document_id": "550e8400-e29b-41d4-a716-446655440000",
+  "type": "invoice",
+  "content": {
+    "text": "FACTURE\n\nEntreprise ABC SARL\nRue du Commerce 123\n75001 Paris\nTél: +33 1 23 45 67 89\nEmail: contact@abc-sarl.fr\n\nFacture N° : FAC2024-0123\nDate : 01/02/2024\n\nClient:\nXYZ Corporation\n456 Avenue des Affaires\n69001 Lyon\n\nDescription                  Quantité    Prix unitaire    Total\n------------------------------------------------\nConsultation technique          10h         150,00 €     1.500,00 €\nDéveloppement logiciel          20h         200,00 €     4.000,00 €\nMaintenance système              5h         120,00 €       600,00 €\n------------------------------------------------\n\n                           Sous-total HT:   6.100,00 €\n                                TVA 20%:    1.220,00 €\n                           Total TTC:       7.320,00 €",
+    "confidence": 0.89,
+    "fields": {
+      "invoice_number": {
+        "value": "FAC2024-0123",
+        "confidence": 0.95,
+        "bounding_box": {
+          "x": 150,
+          "y": 280,
+          "width": 120,
+          "height": 30
+        }
+      },
+      "date": {
+        "value": "01/02/2024",
+        "confidence": 0.98,
+        "bounding_box": {
+          "x": 150,
+          "y": 310,
+          "width": 100,
+          "height": 30
+        }
+      },
+      "vendor_name": {
+        "value": "ABC SARL",
+        "confidence": 0.92,
+        "bounding_box": {
+          "x": 50,
+          "y": 100,
+          "width": 200,
+          "height": 40
+        }
+      },
+      "vendor_address": {
+        "value": "Rue du Commerce 123, 75001 Paris",
+        "confidence": 0.88,
+        "bounding_box": {
+          "x": 50,
+          "y": 140,
+          "width": 300,
+          "height": 60
+        }
+      },
+      "vendor_contact": {
+        "phone": {
+          "value": "+33 1 23 45 67 89",
+          "confidence": 0.94
+        },
+        "email": {
+          "value": "contact@abc-sarl.fr",
+          "confidence": 0.96
+        }
+      },
+      "client_name": {
+        "value": "XYZ Corporation",
+        "confidence": 0.91,
+        "bounding_box": {
+          "x": 50,
+          "y": 400,
+          "width": 200,
+          "height": 40
+        }
+      },
+      "client_address": {
+        "value": "456 Avenue des Affaires, 69001 Lyon",
+        "confidence": 0.87,
+        "bounding_box": {
+          "x": 50,
+          "y": 440,
+          "width": 300,
+          "height": 60
+        }
+      },
+      "items": [
+        {
+          "description": "Consultation technique",
+          "quantity": "10",
+          "unit": "h",
+          "unit_price": 150.00,
+          "total": 1500.00,
+          "confidence": 0.93
+        },
+        {
+          "description": "Développement logiciel",
+          "quantity": "20",
+          "unit": "h",
+          "unit_price": 200.00,
+          "total": 4000.00,
+          "confidence": 0.94
+        },
+        {
+          "description": "Maintenance système",
+          "quantity": "5",
+          "unit": "h",
+          "unit_price": 120.00,
+          "total": 600.00,
+          "confidence": 0.92
+        }
+      ],
+      "amounts": {
+        "subtotal": {
+          "value": 6100.00,
+          "confidence": 0.96
+        },
+        "tax": {
+          "rate": 20,
+          "value": 1220.00,
+          "confidence": 0.95
+        },
+        "total": {
+          "value": 7320.00,
+          "confidence": 0.97
+        }
+      }
+    }
+  },
+  "metadata": {
+    "filename": "facture_abc_sarl_20240201.pdf",
+    "filesize": 245678,
+    "mime_type": "application/pdf",
+    "page_count": 1,
+    "created_at": "2024-02-01T10:30:00Z",
+    "processed_at": "2024-02-01T10:30:05Z",
+    "processing_time_ms": 5000,
+    "ocr_engine": "tesseract",
+    "ocr_version": "5.3.0",
+    "language": "fra"
+  },
+  "ai_enhancements": {
+    "document_classification": {
+      "type": "invoice",
+      "confidence": 0.98,
+      "other_possibilities": [
+        {
+          "type": "quote",
+          "confidence": 0.15
+        },
+        {
+          "type": "purchase_order",
+          "confidence": 0.08
+        }
+      ]
+    },
+    "anomaly_detection": {
+      "has_anomalies": false,
+      "checks": [
+        {
+          "type": "tax_calculation",
+          "status": "valid",
+          "confidence": 0.99
+        },
+        {
+          "type": "total_calculation",
+          "status": "valid",
+          "confidence": 0.99
+        },
+        {
+          "type": "duplicate_detection",
+          "status": "unique",
+          "confidence": 0.95
+        }
+      ]
+    },
+    "suggested_actions": [
+      {
+        "type": "accounting_entry",
+        "description": "Créer une écriture comptable pour la facture",
+        "confidence": 0.95,
+        "metadata": {
+          "account_debit": "401000",
+          "account_credit": "512000",
+          "due_date": "2024-03-02"
+        }
+      },
+      {
+        "type": "payment_scheduling",
+        "description": "Planifier le paiement",
+        "confidence": 0.90,
+        "metadata": {
+          "amount": 7320.00,
+          "suggested_date": "2024-02-29"
+        }
+      }
+    ]
+  }
+}

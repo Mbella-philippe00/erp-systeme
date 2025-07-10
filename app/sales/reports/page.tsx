@@ -14,6 +14,7 @@ import { formatCurrency } from "@/utils/currency"
 import { SalesChart } from "@/components/charts/sales-chart"
 import { ConversionChart } from "@/components/charts/conversion-chart"
 import { TopClientsChart } from "@/components/charts/top-clients-chart"
+import { ReportTemplate } from "@/components/report-template"
 
 export default function SalesReportsPage() {
   const { opportunities, clients, invoices } = useData()
@@ -103,10 +104,7 @@ export default function SalesReportsPage() {
               <SelectItem value="2022">2023</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={exportReport}>
-            <Download className="mr-2 h-4 w-4" />
-            Exporter PDF
-          </Button>
+          <ReportTemplate onExport={exportReport} moduleTitle="Ventes" />
         </div>
       </div>
 

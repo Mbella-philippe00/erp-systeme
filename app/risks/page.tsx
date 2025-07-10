@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
 import { AlertTriangle, Shield, TrendingUp, Plus, ChevronUp, ChevronDown } from "lucide-react"
+import { ReportTemplate } from "@/components/report-template"
+
 
 export default function RisksPage() {
   const risks = [
@@ -102,15 +104,28 @@ export default function RisksPage() {
     }))
   }
 
-  const updateDashboardMetric = (category: keyof typeof dashboardData, metric: string, change: number) => {
-    setDashboardData(prev => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [metric]: prev[category][metric] + change
+  const updateDashboardMetric = (
+  category: keyof typeof dashboardData,
+  metric: string,
+  change: number
+) => {
+  setDashboardData(prev => {
+    const value = (prev[category] as Record<string, any>)[metric]
+
+    if (typeof value === "number") {
+      return {
+        ...prev,
+        [category]: {
+          ...prev[category],
+          [metric]: value + change
+        }
       }
-    }))
-  }
+    }
+
+    return prev
+  })
+}
+
 
   return (
     <div className="space-y-6">
@@ -124,6 +139,19 @@ export default function RisksPage() {
             <Plus className="mr-2 h-4 w-4" />
             Nouveau risque
           </Button>
+          <ReportTemplate
+           onExport={(templateId) => {
+           if (!templateId) {
+            alert("Aucun modèle n’a été sélectionné pour l’export.");
+            return;
+    }
+
+    const message = `Rapport des risques exporté avec le modèle ${templateId}`;
+    alert(message);
+  }}
+  moduleTitle="Risques"
+/>
+
         </div>
       </div>
 

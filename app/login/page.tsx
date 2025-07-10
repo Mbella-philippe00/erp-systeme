@@ -12,6 +12,8 @@ import { Separator } from "@/components/ui/separator"
 import { TrendingUp, Eye, EyeOff, Github } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useAppSettings } from "@/contexts/app-settings-context"
+import { supabase } from "@/lib/supabase"
+
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -24,33 +26,42 @@ export default function LoginPage() {
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
+  e.preventDefault()
+  setError("")
+  setIsLoading(true)
 
-    // Simulation d'authentification
-    if (email === "admin@erp.com" && password === "admin123") {
-      login({
-        id: "1",
-        name: "Administrateur",
-        email: "admin@erp.com",
-        role: "admin",
-      })
-      router.push("/")
-    } else if (email === "user@erp.com" && password === "user123") {
-      login({
-        id: "2",
-        name: "Utilisateur",
-        email: "user@erp.com",
-        role: "user",
-      })
-      router.push("/")
-    } else {
-      setError("Email ou mot de passe incorrect")
-    }
+  const { error: loginError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  })
 
-    setIsLoading(false)
+  if (loginError) {
+    setError("Email ou mot de passe incorrect")
+  } else {
+    router.push("/")
   }
+
+  setIsLoading(false)
+}
+const handleSignup = async () => {
+  setError("")
+  setIsLoading(true)
+
+  const { error: signUpError } = await supabase.auth.signUp({
+    email,
+    password,
+  })
+
+  if (signUpError) {
+    setError("Impossible de créer un compte. Veuillez réessayer.")
+  } else {
+    router.push("/")
+  }
+
+  setIsLoading(false)
+}
+
+
 
   const handleGoogleLogin = () => {
     // Simulation de connexion Google
@@ -196,9 +207,16 @@ export default function LoginPage() {
             </Button>
             <div className="text-xs text-muted-foreground">
               Pas encore de compte ?{" "}
-              <Button variant="link" className="text-xs p-0 h-auto">
-                Créer un compte
+             <Button
+              variant="link"
+              className="text-xs p-0 h-auto"
+              onClick={handleSignup}
+              disabled={isLoading}
+>
+               Créer un compte
               </Button>
+
+
             </div>
           </div>
 
