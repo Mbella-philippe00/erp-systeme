@@ -29,7 +29,26 @@ export default function LoginPage() {
     setIsLoading(true)
 
     // Simulation d'authentification
-   
+   if (email === "mbellacriss@icloud.com" && password === "Blalarlphil2025") {
+  login({
+    id: "1",
+    name: "Administrateur",
+    email: "mbellacriss@icloud.com",
+    role: "admin",
+  });
+  router.push("/");
+} else if (email === "user@erp.com" && password === "user123") {
+  login({
+    id: "2",
+    name: "Utilisateur",
+    email: "user@erp.com",
+    role: "user",
+  });
+  router.push("/");
+} else {
+  setError("Email ou mot de passe incorrect");
+}
+
     setIsLoading(false)
   }
 
