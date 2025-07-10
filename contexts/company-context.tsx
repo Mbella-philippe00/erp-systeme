@@ -25,7 +25,7 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
 
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
     name: "KEDIBUILD",
-    logo: "",
+    logo: "https://groupe-kedibuild.com/wp-content/uploads/2024/05/GKB-Logo-horizontal.png",
     address: "Deïdo, 768 Rue Frédéric Ekwalla Essaka, 1721 Rue Kotto, BP : 5335, Douala - Cameroun",
     phone: "+237 233 416 504 ",
     email: "contact@groupe-kedibuild.com",
