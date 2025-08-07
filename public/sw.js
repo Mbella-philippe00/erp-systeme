@@ -1,47 +1,27 @@
-const CACHE_NAME = 'erp-mobile-v1';
+// Service Worker pour l'application ERP Mobile
 
-// Ressources à mettre en cache pour le fonctionnement hors ligne
-const STATIC_RESOURCES = [
-  '/mobile',
-  '/mobile/pointage',
-  '/mobile/conges',
-  '/mobile/documents',
-  '/mobile/messages',
-  '/mobile/calendrier',
-  '/manifest.json',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-128x128.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-152x152.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-384x384.png',
-  '/icons/icon-512x512.png',
-  '/icons/pointage.png',
-  '/icons/conges.png'
-];
-
-// Routes API à mettre en cache avec stratégie stale-while-revalidate
-const API_ROUTES = [
-  '/api/mobile/user-profile',
-  '/api/mobile/timesheet',
-  '/api/mobile/leave-requests',
-  '/api/mobile/documents',
-  '/api/mobile/messages',
-  '/api/mobile/calendar'
-];
+const CACHE_NAME = 'erp-mobile-cache-v1';
+const OFFLINE_URL = '/mobile';
 
 // Installation du Service Worker
 self.addEventListener('install', (event) => {
+  console.log('Service Worker: Installation');
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_RESOURCES);
+      return cache.addAll([
+        OFFLINE_URL,
+        '/mobile',
+        '/login',
+        '/placeholder-logo.svg',
+        '/placeholder-user.jpg',
+      ]);
     })
   );
 });
 
-// Activation et nettoyage des anciens caches
+// Activation du Service Worker
 self.addEventListener('activate', (event) => {
+  console.log('Service Worker: Activation');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -53,144 +33,97 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Stratégie de mise en cache pour les requêtes
+// Interception des requêtes réseau
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // Stratégie pour les ressources statiques
-  if (STATIC_RESOURCES.includes(url.pathname)) {
-    event.respondWith(cacheFirst(event.request));
-    return;
+  // Stratégie network-first pour les API
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // Stratégie cache-first pour les ressources statiques
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request).then((fetchResponse) => {
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, fetchResponse.clone());
+            return fetchResponse;
+          });
+        });
+      })
+    );
   }
-
-  // Stratégie pour les routes API
-  if (API_ROUTES.some(route => url.pathname.startsWith(route))) {
-    event.respondWith(staleWhileRevalidate(event.request));
-    return;
-  }
-
-  // Stratégie par défaut
-  event.respondWith(networkFirst(event.request));
 });
 
-// Stratégie Cache First
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  return cached || fetch(request);
-}
-
-// Stratégie Network First
-async function networkFirst(request) {
-  try {
-    const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  } catch (error) {
-    const cached = await caches.match(request);
-    return cached || new Response('Hors ligne - Contenu non disponible', {
-      status: 503,
-      statusText: 'Service Unavailable'
-    });
-  }
-}
-
-// Stratégie Stale While Revalidate
-async function staleWhileRevalidate(request) {
-  const cached = await caches.match(request);
-
-  const fetchPromise = fetch(request).then(async (networkResponse) => {
-    if (networkResponse.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  });
-
-  return cached || fetchPromise;
-}
-
-// Gestion des notifications push
-self.addEventListener('push', (event) => {
-  const data = event.data.json();
-
-  const options = {
-    body: data.body,
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/badge.png',
-    vibrate: [100, 50, 100],
-    data: {
-      url: data.url
-    }
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
-});
-
-// Gestion du clic sur les notifications
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
-});
-
-// Synchronisation en arrière-plan
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-timesheet') {
+// Gestion des messages depuis l'application
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'sync-timesheet') {
     event.waitUntil(syncTimesheet());
-  } else if (event.tag === 'sync-leave-requests') {
-    event.waitUntil(syncLeaveRequests());
   }
 });
 
-// Fonction de synchronisation des pointages
+// Synchronisation des données de pointage
 async function syncTimesheet() {
-  const cache = await caches.open(CACHE_NAME);
-  const requests = await cache.keys();
-  
-  const timesheetRequests = requests.filter(request => 
-    request.url.includes('/api/mobile/timesheet')
-  );
-
-  return Promise.all(
-    timesheetRequests.map(async (request) => {
-      try {
-        const response = await fetch(request);
-        if (response.ok) {
-          await cache.delete(request);
+  try {
+    const db = await openIndexedDB();
+    const tx = db.transaction('timesheet', 'readwrite');
+    const store = tx.objectStore('timesheet');
+    
+    // Récupérer tous les pointages non synchronisés
+    const unsyncedEntries = await store.getAll();
+    
+    for (const entry of unsyncedEntries) {
+      if (!entry.synced) {
+        try {
+          // Tenter de synchroniser avec le serveur
+          const response = await fetch('/api/mobile/timesheet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: entry.type,
+              timestamp: entry.timestamp,
+              location: entry.location
+            }),
+          });
+          
+          if (response.ok) {
+            // Marquer comme synchronisé
+            entry.synced = true;
+            await store.put(entry);
+            console.log('Pointage synchronisé avec succès:', entry.timestamp);
+          }
+        } catch (error) {
+          console.error('Erreur lors de la synchronisation du pointage:', error);
         }
-      } catch (error) {
-        console.error('Erreur de synchronisation:', error);
       }
-    })
-  );
+    }
+    
+    await tx.complete;
+    db.close();
+  } catch (error) {
+    console.error('Erreur lors de la synchronisation des pointages:', error);
+  }
 }
 
-// Fonction de synchronisation des demandes de congés
-async function syncLeaveRequests() {
-  const cache = await caches.open(CACHE_NAME);
-  const requests = await cache.keys();
-  
-  const leaveRequests = requests.filter(request => 
-    request.url.includes('/api/mobile/leave-requests')
-  );
-
-  return Promise.all(
-    leaveRequests.map(async (request) => {
-      try {
-        const response = await fetch(request);
-        if (response.ok) {
-          await cache.delete(request);
-        }
-      } catch (error) {
-        console.error('Erreur de synchronisation:', error);
+// Fonction utilitaire pour ouvrir IndexedDB
+function openIndexedDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('offlineStore', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('timesheet')) {
+        db.createObjectStore('timesheet', { keyPath: 'timestamp' });
       }
-    })
-  );
+    };
+  });
 }

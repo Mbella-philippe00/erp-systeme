@@ -141,7 +141,7 @@ export default function DocumentViewer() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center search-filter-container">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -177,8 +177,8 @@ export default function DocumentViewer() {
       ) : (
         <div className="space-y-4">
           {filteredDocuments.map((doc) => (
-            <Card key={doc.id} className="p-4">
-              <div className="flex items-start justify-between">
+            <Card key={doc.id} className="p-4 document-card">
+              <div className="flex items-start justify-between document-info">
                 <div className="flex items-start space-x-4">
                   <FileText className="h-6 w-6 flex-shrink-0 text-blue-500" />
                   <div>
@@ -187,7 +187,7 @@ export default function DocumentViewer() {
                       {documentTypes.find((t) => t.id === doc.document_type)?.label}
                       {doc.metadata.period && ` - ${doc.metadata.period}`}
                     </div>
-                    <div className="mt-2 flex items-center space-x-4 text-sm text-muted-foreground">
+                    <div className="mt-2 flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
                       <span>
                         {format(new Date(doc.uploaded_at), 'PPP', { locale: fr })}
                       </span>
@@ -198,6 +198,7 @@ export default function DocumentViewer() {
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="document-actions"
                   onClick={() => downloadDocument(doc)}
                   disabled={doc.id in downloadProgress}
                 >

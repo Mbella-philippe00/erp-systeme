@@ -1,4 +1,4 @@
-// LeaveRequestForm.tsx corrigé
+
 
 'use client';
 
@@ -9,10 +9,17 @@ import * as z from 'zod';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Calendar as CalendarIcon, Upload, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Card } from '@/components/ui/card';
+
+import { cn } from '@/lib/utils';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -38,13 +45,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import { openDB, DBSchema } from 'idb';
 
-const leaveTypes = [
-  { id: 'paid', label: 'Congés payés' },
-  { id: 'unpaid', label: 'Congés sans solde' },
-  { id: 'sick', label: 'Arrêt maladie' },
-  { id: 'family', label: 'Événement familial' },
-  { id: 'other', label: 'Autre' },
-];
+
 
 const formSchema = z
   .object({
@@ -174,8 +175,205 @@ export default function LeaveRequestForm() {
   };
 
   return (
-    <Card className="p-6">
-      {/* ...interface utilisateur inchangée... */}
+    <Card className="w-full max-w-2xl mx-auto leave-request-card">
+      <CardHeader>
+        <CardTitle>Demande de congé</CardTitle>
+        <CardDescription>
+          Remplissez le formulaire pour soumettre une demande de congé
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 leave-form">
+            <FormField
+              control={form.control}
+              name="leaveType"
+              render={({ field }) => (
+                <FormItem className="leave-type-field">
+                  <FormLabel>Type de congé</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez un type de congé" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="annual">Congé annuel</SelectItem>
+                      <SelectItem value="sick">Congé maladie</SelectItem>
+                      <SelectItem value="parental">Congé parental</SelectItem>
+                      <SelectItem value="unpaid">Congé sans solde</SelectItem>
+                      <SelectItem value="other">Autre</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 date-fields-container">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col date-field">
+                    <FormLabel>Date de début</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal date-button",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: fr })
+                            ) : (
+                              <span>Sélectionnez une date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 date-popover" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col date-field">
+                    <FormLabel>Date de fin</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal date-button",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP", { locale: fr })
+                            ) : (
+                              <span>Sélectionnez une date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 date-popover" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date <
+                            (form.getValues().startDate ||
+                              new Date(new Date().setHours(0, 0, 0, 0)))
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="reason"
+              render={({ field }) => (
+                <FormItem className="reason-field">
+                  <FormLabel>Motif de la demande</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Veuillez détailler la raison de votre demande"
+                      className="resize-none min-h-[120px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="space-y-3 attachments-section">
+              <FormLabel>Pièces jointes (optionnel)</FormLabel>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="file-upload-button"
+                  onClick={() => document.getElementById('file-upload')?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Ajouter un fichier
+                </Button>
+                <input
+                  id="file-upload"
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileChange}
+                  multiple
+                />
+              </div>
+
+              {files.length > 0 && (
+                <ul className="space-y-2 file-list">
+                  {files.map((file, index) => (
+                    <li key={index} className="flex items-center justify-between p-2 border rounded">
+                      <span className="truncate max-w-[200px]">{file.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                        className="h-8 w-8 p-0"
+                      >
+                        &times;
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <Button type="submit" className="w-full submit-button" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Envoi en cours...
+                </>
+              ) : (
+                'Soumettre la demande'
+              )}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
     </Card>
   );
 }
+// LeaveRequestForm.tsx corrigé
+

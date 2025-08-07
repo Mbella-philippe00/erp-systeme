@@ -29,7 +29,7 @@ export default function LoginPage() {
   e.preventDefault()
   setError("")
   setIsLoading(true)
-  if (email === "mbellacriss@icloud.com" && password === "Blalarlphil2025") {
+  if (email === "mbellacriss@icloud.com" && password === "Blalarphil2025") {
   login({
     id: "1",
     name: "Administrateur",

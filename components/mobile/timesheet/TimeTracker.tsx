@@ -3,7 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
 import { Clock, MapPin, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -104,7 +110,7 @@ export default function TimeTracker() {
           toast({
             title: 'Mode hors ligne',
             description: 'Le pointage sera synchronisé dès que possible',
-            variant: 'default', // ✅ warning remplacé par default
+            variant: 'default',
           });
         } else {
           throw error;
@@ -114,7 +120,7 @@ export default function TimeTracker() {
       console.error('Erreur lors du pointage:', error);
       toast({
         title: 'Erreur',
-        description: 'Impossible d\'enregistrer le pointage',
+        description: "Impossible d'enregistrer le pointage",
         variant: 'destructive',
       });
     } finally {
@@ -145,47 +151,62 @@ export default function TimeTracker() {
   };
 
   return (
-    <Card className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Pointage</h2>
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <Clock className="w-4 h-4" />
-          <span>{format(new Date(), 'PPP', { locale: fr })}</span>
+    <Card className="w-full max-w-md mx-auto timesheet-card">
+      <CardHeader className="timesheet-header">
+        <CardTitle>Pointage</CardTitle>
+        <CardDescription>
+          Enregistrez votre entrée et sortie quotidienne
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 touch-friendly-container">
+        <div className="text-center current-time">
+          <div className="text-3xl font-bold">
+            {format(new Date(), 'HH:mm:ss')}
+          </div>
+          <div className="text-sm text-muted-foreground mt-1">
+            {format(new Date(), 'EEEE d MMMM yyyy', { locale: fr })}
+          </div>
         </div>
-      </div>
 
-      {geoEnabled && currentLocation && (
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <MapPin className="w-4 h-4" />
-          <span>
-            Position : {currentLocation.coords.latitude.toFixed(6)},
-            {currentLocation.coords.longitude.toFixed(6)}
-          </span>
-        </div>
-      )}
+        {geoEnabled && currentLocation && (
+          <div className="text-sm text-center text-muted-foreground geolocation-display overflow-hidden">
+            <MapPin className="inline-block mr-1 h-4 w-4 flex-shrink-0" />
+            <span className="truncate">
+              {currentLocation.coords.latitude.toFixed(6)}, {currentLocation.coords.longitude.toFixed(6)}
+            </span>
+          </div>
+        )}
 
-      <div className="space-y-4">
         {lastEntry && (
-          <div className="text-sm text-muted-foreground">
-            Dernier pointage : {lastEntry.type === 'entry' ? 'Arrivée' : 'Départ'} le{' '}
-            {format(new Date(lastEntry.timestamp), 'PPP à HH:mm', { locale: fr })}
+          <div className="bg-muted p-3 rounded-md last-entry">
+            <div className="font-medium">Dernier pointage</div>
+            <div className="text-sm mt-1">
+              {lastEntry.type === 'entry' ? 'Arrivée' : 'Départ'} le{' '}
+              {format(new Date(lastEntry.timestamp), 'PPP à HH:mm', { locale: fr })}
+            </div>
           </div>
         )}
 
         <Button
-          className="w-full"
+          className="w-full timesheet-button"
           size="lg"
           onClick={handleTimesheet}
           disabled={loading}
         >
           {loading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Traitement...
+            </>
           ) : (
-            <Clock className="w-4 h-4 mr-2" />
+            <>
+              <Clock className="w-4 h-4 mr-2" />
+              {lastEntry?.type === 'entry' ? 'Pointer le départ' : "Pointer l'arrivée"}
+            </>
           )}
-          {lastEntry?.type === 'entry' ? 'Pointer le départ' : 'Pointer l\'arrivée'}
         </Button>
-      </div>
+      </CardContent>
     </Card>
   );
 }
+

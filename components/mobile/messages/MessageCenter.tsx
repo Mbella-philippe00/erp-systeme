@@ -157,10 +157,10 @@ export default function MessageCenter() {
   };
 
   return (
-    <div className="grid h-[calc(100vh-4rem)] grid-cols-1 gap-4 md:grid-cols-3">
-      <Card className="md:col-span-1">
+    <div className="grid h-[calc(100vh-4rem)] grid-cols-1 gap-4 md:grid-cols-3 message-grid">
+      <Card className="md:col-span-1 thread-list">
         <div className="p-4 font-medium border-b">Conversations</div>
-        <ScrollArea className="h-[calc(100vh-8rem)]">
+        <ScrollArea className="h-[calc(100vh-8rem)] sm:h-[calc(100vh-8rem)]">
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <Loader2 className="w-6 h-6 animate-spin" />
@@ -204,91 +204,90 @@ export default function MessageCenter() {
         </ScrollArea>
       </Card>
 
-      <Card className="flex flex-col md:col-span-2">
+      <Card className="flex flex-col md:col-span-2 message-area">
         {selectedThread ? (
           <>
-            <ScrollArea className="flex-1 p-4">
+            <ScrollArea className="flex-1 p-4 messages-container">
               <div className="space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.sender_id === user?.id
-                        ? 'justify-end'
-                        : 'justify-start'
-                    }`}
-                  >
+                {messages.map((message) => {
+                  const isSender = message.sender_id === user?.id;
+                  return (
                     <div
-                      className={`flex space-x-2 max-w-[80%] ${
-                        message.sender_id === user?.id
-                          ? 'flex-row-reverse space-x-reverse'
-                          : ''
-                      }`}
+                      key={message.id}
+                      className={`flex ${isSender ? 'justify-end' : 'justify-start'} message-bubble-container`}
                     >
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage
-                          src={message.sender.avatar_url}
-                          alt={message.sender.name}
-                        />
-                        <AvatarFallback>
-                          {message.sender.name
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div
-                          className={`rounded-lg p-3 ${
-                            message.sender_id === user?.id
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          }`}
-                        >
-                          {message.content}
-                          {message.attachments.length > 0 && (
-                            <div className="mt-2 space-y-1">
-                              {message.attachments.map((attachment, index) => (
-                                <a
-                                  key={index}
-                                  href={attachment.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-center text-sm hover:underline"
-                                >
-                                  <Paperclip className="w-4 h-4 mr-1" />
-                                  {attachment.name}
-                                  <span className="ml-1 text-xs opacity-70">
-                                    ({formatFileSize(attachment.size)})
-                                  </span>
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <div className="mt-1 text-xs text-muted-foreground">
-                          {format(new Date(message.created_at), 'PPp', {
-                            locale: fr,
-                          })}
+                      <div
+                        className={`flex space-x-2 max-w-[90%] sm:max-w-[80%] ${
+                          isSender
+                            ? 'flex-row-reverse space-x-reverse'
+                            : ''
+                        } message-content`}
+                      >
+                        <Avatar className="w-8 h-8 flex-shrink-0">
+                          <AvatarImage
+                            src={message.sender.avatar_url}
+                            alt={message.sender.name}
+                          />
+                          <AvatarFallback>
+                            {message.sender.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div
+                            className={`rounded-lg p-3 ${
+                              isSender
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
+                            } message-bubble`}
+                          >
+                            <div className="whitespace-pre-wrap">{message.content}</div>
+                            {message.attachments.length > 0 && (
+                              <div className="mt-2 space-y-1">
+                                {message.attachments.map((attachment, index) => (
+                                  <a
+                                    key={index}
+                                    href={attachment.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center p-2 text-sm rounded bg-background/50 hover:underline attachment-item"
+                                  >
+                                    <Paperclip className="w-4 h-4 mr-1 flex-shrink-0" />
+                                    <span className="flex-1 min-w-0 truncate">{attachment.name}</span>
+                                    <span className="ml-1 text-xs opacity-70">
+                                      ({formatFileSize(attachment.size)})
+                                    </span>
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {format(new Date(message.created_at), 'PPp', {
+                              locale: fr,
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
 
-            <div className="p-4 border-t">
+            <div className="p-4 border-t message-input-container">
               {files.length > 0 && (
-                <div className="mb-4 space-y-2">
+                <div className="mb-4 space-y-2 selected-files">
                   {files.map((file, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 text-sm border rounded-lg"
+                      className="flex items-center justify-between p-2 text-sm border rounded-lg file-item"
                     >
                       <div className="flex items-center">
-                        <Paperclip className="w-4 h-4 mr-2" />
+                        <Paperclip className="w-4 h-4 mr-2 flex-shrink-0" />
                         <span className="truncate">{file.name}</span>
                         <span className="ml-2 text-muted-foreground">
                           ({formatFileSize(file.size)})
@@ -297,6 +296,7 @@ export default function MessageCenter() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        className="remove-file-button"
                         onClick={() => removeFile(index)}
                       >
                         Supprimer
@@ -310,6 +310,7 @@ export default function MessageCenter() {
                 <Button
                   variant="outline"
                   size="icon"
+                  className="attachment-button"
                   onClick={handleFileSelect}
                   disabled={sending}
                 >
@@ -327,11 +328,12 @@ export default function MessageCenter() {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Votre message..."
-                  className="flex-1 min-h-[2.5rem] max-h-32"
+                  className="flex-1 min-h-[2.5rem] max-h-32 message-textarea"
                   disabled={sending}
                 />
                 <Button
                   size="icon"
+                  className="send-button"
                   onClick={handleSend}
                   disabled={sending || (!newMessage.trim() && files.length === 0)}
                 >

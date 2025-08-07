@@ -125,20 +125,20 @@ export default function PersonalCalendar() {
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <Card className="p-4 md:col-span-2">
+    <div className="grid gap-4 md:grid-cols-3 calendar-container">
+      <Card className="p-4 md:col-span-2 calendar-card">
         <Calendar
           mode="single"
           selected={date}
           onSelect={(newDate) => newDate && setDate(newDate)}
           locale={fr}
-          className="rounded-md border"
+          className="rounded-md border calendar-widget"
           modifiers={modifiers}
           modifiersClassNames={modifiersClassNames}
         />
       </Card>
 
-      <Card className="p-4">
+      <Card className="p-4 daily-view-card">
         <div className="font-medium">
           {format(date, 'EEEE d MMMM yyyy', { locale: fr })}
         </div>
@@ -152,77 +152,85 @@ export default function PersonalCalendar() {
             Aucun événement prévu
           </div>
         ) : (
-          <ScrollArea className="h-[calc(100vh-16rem)] mt-4">
+          <ScrollArea className="h-[calc(100vh-16rem)] mt-4 events-container">
             <div className="space-y-4">
-              {selectedDayEvents.map((event) => (
-                <div key={event.id} className="p-3 rounded-lg border space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Badge
-                        variant="secondary"
-                        className={`${eventTypeColors[event.event_type].bg} ${eventTypeColors[event.event_type].text}`}
-                      >
-                        {event.event_type === 'holiday'
-                          ? 'Jour férié'
-                          : event.event_type === 'leave'
-                          ? 'Congé'
-                          : event.event_type === 'hr'
-                          ? 'RH'
-                          : 'Autre'}
-                      </Badge>
-                      <h3 className="mt-2 font-medium">{event.title}</h3>
+              {selectedDayEvents.length > 0 && (
+                <div className="events-section">
+                  {selectedDayEvents.map((event) => (
+                    <div key={event.id} className="p-3 rounded-lg border space-y-2 event-item mb-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <Badge
+                            variant="secondary"
+                            className={`${eventTypeColors[event.event_type].bg} ${eventTypeColors[event.event_type].text} event-type-badge`}
+                          >
+                            {event.event_type === 'holiday'
+                              ? 'Jour férié'
+                              : event.event_type === 'leave'
+                              ? 'Congé'
+                              : event.event_type === 'hr'
+                              ? 'RH'
+                              : 'Autre'}
+                          </Badge>
+                          <h3 className="mt-2 font-medium">{event.title}</h3>
+                        </div>
+                      </div>
+                      {event.description && (
+                        <p className="text-sm text-muted-foreground">{event.description}</p>
+                      )}
+                      <div className="text-sm text-muted-foreground event-details">
+                        {event.all_day ? (
+                          'Toute la journée'
+                        ) : (
+                          <>
+                            {format(new Date(event.start_time), 'HH:mm')} -{' '}
+                            {format(new Date(event.end_time), 'HH:mm')}
+                          </>
+                        )}
+                        {event.location && <div className="mt-1">Lieu : {event.location}</div>}
+                      </div>
                     </div>
-                  </div>
-                  {event.description && (
-                    <p className="text-sm text-muted-foreground">{event.description}</p>
-                  )}
-                  <div className="text-sm text-muted-foreground">
-                    {event.all_day ? (
-                      'Toute la journée'
-                    ) : (
-                      <>
-                        {format(new Date(event.start_time), 'HH:mm')} -{' '}
-                        {format(new Date(event.end_time), 'HH:mm')}
-                      </>
-                    )}
-                    {event.location && <div className="mt-1">Lieu : {event.location}</div>}
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
 
-              {selectedDayLeaves.map((leave) => (
-                <div key={leave.id} className="p-3 rounded-lg border space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <Badge
-                        variant="secondary"
-                        className={`${leaveTypeColors[leave.status].bg} ${leaveTypeColors[leave.status].text}`}
-                      >
-                        {leave.status === 'pending'
-                          ? 'En attente'
-                          : leave.status === 'approved'
-                          ? 'Approuvé'
-                          : 'Refusé'}
-                      </Badge>
-                      <h3 className="mt-2 font-medium">
-                        {leave.leave_type === 'paid'
-                          ? 'Congés payés'
-                          : leave.leave_type === 'unpaid'
-                          ? 'Congés sans solde'
-                          : leave.leave_type === 'sick'
-                          ? 'Arrêt maladie'
-                          : leave.leave_type === 'family'
-                          ? 'Événement familial'
-                          : 'Autre'}
-                      </h3>
+              {selectedDayLeaves.length > 0 && (
+                <div className="leaves-section">
+                  {selectedDayLeaves.map((leave) => (
+                    <div key={leave.id} className="p-3 rounded-lg border space-y-2 leave-item mb-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <Badge
+                            variant="secondary"
+                            className={`${leaveTypeColors[leave.status].bg} ${leaveTypeColors[leave.status].text} leave-status-badge`}
+                          >
+                            {leave.status === 'pending'
+                              ? 'En attente'
+                              : leave.status === 'approved'
+                              ? 'Approuvé'
+                              : 'Refusé'}
+                          </Badge>
+                          <h3 className="mt-2 font-medium">
+                            {leave.leave_type === 'paid'
+                              ? 'Congés payés'
+                              : leave.leave_type === 'unpaid'
+                              ? 'Congés sans solde'
+                              : leave.leave_type === 'sick'
+                              ? 'Arrêt maladie'
+                              : leave.leave_type === 'family'
+                              ? 'Événement familial'
+                              : 'Autre'}
+                          </h3>
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground leave-details">
+                        Du {format(new Date(leave.start_date), 'PPP', { locale: fr })} au{' '}
+                        {format(new Date(leave.end_date), 'PPP', { locale: fr })}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Du {format(new Date(leave.start_date), 'PPP', { locale: fr })} au{' '}
-                    {format(new Date(leave.end_date), 'PPP', { locale: fr })}
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </ScrollArea>
         )}
